@@ -1,0 +1,175 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# forestry
+
+forestry is an R package with a series of utility functions to help with reshaping hierarchy of data tree, and reform the structure of data tree.
+
+## Installation
+
+You can install the cran version of forestry:
+
+``` r
+install.packages("forestry")
+```
+
+
+## Introduction
+
+Built on the top of [data.tree](https://cran.r-project.org/web/packages/data.tree/vignettes/data.tree.html), a Node (tree) is an R6 object that is especially useful when we are facing *hierarchical data*.  The **forestry** package helps to reshape or create tree objects. This package is a series of utility functions to help with nested data. Since [data.tree](https://cran.r-project.org/web/packages/data.tree/vignettes/data.tree.html) has the capability to convert a tree to JSON using `toJSON()` after converting to a list using `as.list()`, the **forestry** package is particularly useful when creating a specific JSON object for building htmlwidgets. The **forestry** package aims to reshape or create tree objects with a specific format. 
+
+## Create a Node with Assigned Attributes
+
+`create_nodes()` creates a Node object. `tree_name` is to assign the name of this Node. `add_children_count` is to assign the number of children to this Node, it will be listed in numerical order. To assign values to each node, simply put the appropriate variable as a parameter with a vector containing the values. The name of the parameter will be the variable name and the values in the vector will be assigned to each node respectively. 
+
+```{r create_node}
+library(data.tree)
+library(forestry)
+new_node <- create_nodes(tree_name = "tree1", 
+                         add_children_count = 3, 
+                         class = c("A", "B", "C") )
+print(new_node, "class")
+```
+
+## Fill Missing Values Across a Level
+
+The `fill_NA_level()` function will fill missing values across the desired level with desired value (default as 0). 
+For example, `new_node` is a tree with missing value in hc field. 
+
+```{r create_node11}
+new_node <- create_nodes(tree_name = "tree1", 
+                         add_children_count = 3, 
+                         hc = c(1, 2, NA))
+print(new_node, "hc" )
+```
+
+We apply `fill_NA_level()` to `new_node`, simply put `new_node` as `input_node`, assign the `field_name` with `hc`, and assign `by_level = 2`, we will fill the `NA` in hc field with 0 across level 2. 
+
+```{r create_node12}
+result <- fill_NA_level(input_node = new_node, 
+                        field_name = "hc", 
+                        by_level = 2, 
+                        fill_with = 0)
+print(result, "hc")
+```
+
+
+## Create a Tree From a List
+
+`create_tree()` creates a new tree from a list. It appends each item of the input list as a numbered child in the new tree. This is useful when we convert a Node to a JSON array. 
+
+For instance, let's use `test_node$children` (a list) as an example. We can see a list of groupA, groupB and groupC. 
+
+```{r create_node2}
+data(test_df)
+test_node <- data.tree::as.Node(test_df)
+print(test_node$children)
+```
+
+
+Now we see that this list is reshaped into a list, *new_tree*, with each item in `test_node$children` added as a child. The index of each item in the list is assigned as the name of each child. 
+
+```{r create_node3}
+library(data.tree)
+test_node <- as.Node(test_df)
+new_shape <- create_tree(test_node$children,"new_tree")
+print(new_shape, "hc")
+```
+
+
+## Expand Children Nodes 
+
+`fix_items()` creates a tree with fixed children nodes from another tree. It automatically copies fields to the tree and fills missing values with `NA`. Similar to left joining to a tree with certian children nodes. 
+
+This function is to make sure the tree has the desired children nodes. 
+
+See *cell_node2*, it has only B and C.
+
+```{r create_node4_pre}
+cell_node2 <- Node$new("cell2")
+cell_node2$AddChild("B")
+cell_node2$AddChild("C")
+cell_node2$Set(class = c(NA, "B1", "C1"))
+print(cell_node2, "class")
+```
+
+Now we put `fix_vector = c("A", "B", "C", "D")` and assign to a new tree, `cell_fixed_items`. We can see that `cell_fixed_items` has all of the nodes from `fix_vector` and still inherits the fields from `cell_node2`. 
+
+
+```{r create_node5}
+cell_fixed_items <- fix_items(fix_vector = c("A", "B", "C", "D"), 
+                              input_node = cell_node2)
+print(cell_fixed_items, "class")
+```
+
+## Sort Chidren Nodes 
+
+`children_sort()` function sorts the children nodes into a desired order. If there are children nodes not listed in the `input_order`, we can set the `mismatch_last` parameter (default is `T`) to put the mismatched children nodes to the top or bottom.
+
+```{r create_node6}
+data(test_df)
+test_node <- data.tree::as.Node(test_df)
+sorted_node <- children_sort(
+  input_node = test_node, 
+  input_order = c("groupB", "groupA"),
+  mismatch_last = T)
+print(sorted_node)
+```
+
+## Cumulative Sum Across a Level
+
+`cumsum_across_level()` gets the cumulative value across a level, the cumulative value will be added to the `cumsum_number` field. 
+
+In this example, it calculates the cumulative `exercise_time` field across level 3.
+
+```{r create_node7}
+data(exercise_df)
+exercise_node <- as.Node(exercise_df)
+test <- forestry::cumsum_across_level(input_node = exercise_node, 
+                              attri_name = "exercise_time", 
+                              level_num = 3)
+print(test, "cumsum_number", "exercise_time", "level")
+```
+
+
+In addition, `level_num = "All"` will get the cumulative value across all levels. Please note that there should be no missing values in the appropriate level when we apply `cumsum_across_level()`.
+
+```{r create_node8}
+data(exercise_df)
+exercise_node <- as.Node(exercise_df)
+exercise_node$Do(function(node) node$exercise_time <- Aggregate(node, 
+                                                   attribute = "exercise_time", 
+                                                   aggFun = sum), 
+             traversal = "post-order")
+print(exercise_node,  "exercise_time")
+
+exercise_node_test <- cumsum_across_level(input_node = exercise_node, 
+                              attri_name = "exercise_time", 
+                              level_num = "All")
+print(exercise_node_test,"exercise_time", "cumsum_number", "level")
+```
+
+## Prepare for JSON array 
+
+The `pre_get_array()` function changes the numeric item name in a list into a format that is compatible with the JSON array standard. As mentioned earlier, when converting a tree to JSON, we need to save the tree as a list using `as.list()` then use `htmlwidgets:::toJSON()` to convert the list to JSON data. 
+
+For example, `new_node` is a tree with numeric children nodes. 
+
+```{r create_node9}
+new_node <- create_nodes(tree_name = "tree1", 
+                         add_children_count = 3, 
+                         class = c("A", "B", "C"))
+print(as.list(new_node) )
+```
+
+We can see the numeric children node names are listed. If we apply `pre_get_array()` to this list, we can change all numeric names so the nodes can be saved as a JSON array instead of JSON objects after we use `htmlwidgets:::toJSON()`.
+
+```{r create_node10}
+new_node <- create_nodes(tree_name = "tree1", 
+                         add_children_count = 3, 
+                         class = c("A", "B", "C"))
+print(pre_get_array(as.list(new_node) ) )
+```
+
+
+
