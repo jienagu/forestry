@@ -6,9 +6,9 @@
 #' @param ... parameters that will be passed as fields of this tree
 #'
 #' @return a tree with assigned name, children and fields
-#' @export
-#'
 #' @examples create_nodes(tree_name = "tree1", add_children_count = 3, class = c("A", "B", "C"))
+#' @export
+
 create_nodes <- function(tree_name, add_children_count, ...) {
   cell_node <- data.tree::Node$new(tree_name)
   eval(lapply(1:add_children_count, cell_node$AddChild))
@@ -34,6 +34,13 @@ create_nodes <- function(tree_name, add_children_count, ...) {
 #' @param assign_node appended node as child
 #'
 #' @return reshaped tree with children assigned
+#' @examples
+#' data("test_df")
+#' data("exercise_df")
+#' test_node <- data.tree::as.Node(test_df)
+#' test_exercise <- data.tree::as.Node(exercise_df)
+#' add_child(main_tree = test_node, x = 4, assign_node = test_exercise )
+#' print(test_node)
 #' @export
 
 add_child <- function(main_tree, x, assign_node) {
@@ -47,6 +54,13 @@ add_child <- function(main_tree, x, assign_node) {
 #' @param node_name name of the tree
 #'
 #' @return a tree with each item of the list as each child
+#'
+#' @examples
+#' data("test_df")
+#' test_node <- data.tree::as.Node(test_df)
+#' new_shape <- create_tree(test_node$children,"new_tree")
+#' print(new_shape, "hc")
+#'
 #' @export
 
 
@@ -67,6 +81,8 @@ create_tree <- function(input_list, node_name){
 #' @param x input
 #'
 #' @return unname numeric names list
+#' @examples fixnames(list("1" = 1, "2" = 2))
+#'
 #' @export
 
 fixnames <- function(x) {
@@ -81,6 +97,10 @@ fixnames <- function(x) {
 #' @param x input list
 #'
 #' @return unname numeric names list which is prepared to convert to JSON array
+#' @examples
+#' demo_list <- list("1" = 1, "2" = 2, list("1" = 1, "2" = 2))
+#' pre_get_array(demo_list)
+#'
 #' @export
 
 pre_get_array <- function(x) {
@@ -93,6 +113,14 @@ pre_get_array <- function(x) {
 #' @param input_node the node to be exapnded with children's names
 #'
 #' @return a node expanded with certain children nodes
+#' @examples
+#' cell_node2 <- data.tree::Node$new("cell2")
+#' cell_node2$AddChild("B")
+#' cell_node2$AddChild("C")
+#' cell_node2$Set(class = c(NA, "B1", "C1"))
+#' print(cell_node2, "class")
+#' cell_fixed_items <- fix_items(fix_vector = c("A", "B", "C", "D"), input_node = cell_node2)
+#' print(cell_fixed_items, "class")
 #' @export
 
 fix_items <- function(fix_vector, input_node){
@@ -119,6 +147,14 @@ fix_items <- function(fix_vector, input_node){
 #' @param node_to assigned attributes to
 #'
 #' @return a node assigned attributes
+#' @examples
+#' cell_node1 <- data.tree::Node$new("cell1")
+#' cell_node1$AddChild("A")
+#' cell_node2 <- data.tree::Node$new("cell2")
+#' cell_node2$AddChild("A")
+#' cell_node2$Set(group = c(NA, "A1"))
+#' print(assign_attr(node_from = cell_node1$A, node_to = cell_node2$A), "group")
+#'
 #' @export
 
 assign_attr <- function(node_from, node_to){
@@ -136,6 +172,14 @@ assign_attr <- function(node_from, node_to){
 #' @param mismatch_last TRUE: mismatched children nodes are at the bottom; FALSE: mismatched nodes are at the top
 #'
 #' @return tree with children nodes sorted with certian order
+#' @examples
+#' data(test_df)
+#' test_node <- data.tree::as.Node(test_df)
+#' sorted_node <- children_sort(
+#'   input_node = test_node,
+#'   input_order = c("groupB", "groupA"),
+#'   mismatch_last = TRUE)
+#' print(sorted_node)
 #' @export
 
 children_sort <- function(input_node, input_order, mismatch_last = T){
@@ -168,6 +212,13 @@ children_sort <- function(input_node, input_order, mismatch_last = T){
 #' @param level_num calculate cummulative value cross the level
 #'
 #' @return tree with cummulative count
+#' @examples
+#' data(exercise_df)
+#' exercise_node <- data.tree::as.Node(exercise_df)
+#' test <- cumsum_across_level(input_node = exercise_node,
+#'                             attri_name = "exercise_time",
+#'                             level_num = 3)
+#' print(test, "cumsum_number", "exercise_time", "level")
 #' @export
 
 cumsum_across_level <- function(input_node, attri_name, level_num){
@@ -199,6 +250,11 @@ cumsum_across_level <- function(input_node, attri_name, level_num){
 #' @param attri_name name of this cummulative count field
 #'
 #' @return tree with calculated cumsum for input level
+#' @examples
+#' data(exercise_df)
+#' exercise_node <- data.tree::as.Node(exercise_df)
+#' cumsum_by_level(exercise_node, 3, "exercise_time")
+#'
 #' @export
 
 cumsum_by_level <- function(input_tree, level_num, attri_name){
@@ -218,15 +274,38 @@ cumsum_by_level <- function(input_tree, level_num, attri_name){
 #' @param fill_with fill missing value with this value
 #'
 #' @return node with NA filled for the input field at input level
+#' @examples
+#' data(exercise_df)
+#' exercise_node <- data.tree::as.Node(exercise_df)
+#' result <- fill_NA_level(input_node = exercise_node,
+#'                         field_name = "exercise_time",
+#'                         by_level = 2,
+#'                         fill_with = "quarterly")
+#' print(result, "exercise_time")
+#'
 #' @export
 
 fill_NA_level <- function(input_node, field_name, by_level, fill_with = 0){
 
-  input_node$Do(function(node) node[[as.character(field_name)]] <- ifelse(
-    is.null(node[[as.character(field_name)]]) | is.na(node[[as.character(field_name)]]),
-    fill_with,
-    node[[as.character(field_name)]]),
-    filterFun = function(x) x$level == by_level)
-
+  level_field_value <- input_node$Get(as.character(field_name),
+                                      filterFun = function(x) x$level == by_level)
+  if(all(is.na(level_field_value))){
+    input_node$Do(
+      function(node) {
+      if(node$level== by_level){
+        node[[as.character(field_name)]] <- fill_with
+        }
+      }
+    )
+  }else{
+   input_node$Do(
+     function(node){
+      if(is.na(node[[as.character(field_name)]])|is.null(node[[as.character(field_name)]])){
+         node[[as.character(field_name)]] <- fill_with
+         }
+        },
+        filterFun = function(x) x$level == by_level
+     )
+  }
   return(input_node)
 }
