@@ -1,9 +1,9 @@
 
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/noteMD)](https://cran.r-project.org/package=forestry)
-[![Rdoc](http://www.rdocumentation.org/badges/version/noteMD)](http://www.rdocumentation.org/packages/forestry) 
-[![Download](https://cranlogs.r-pkg.org/badges/grand-total/noteMD)](https://cranlogs.r-pkg.org/badges/grand-total/forestry)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/forestry)](https://cran.r-project.org/package=forestry)
+[![Rdoc](http://www.rdocumentation.org/badges/version/forestry)](http://www.rdocumentation.org/packages/forestry) 
+[![Download](https://cranlogs.r-pkg.org/badges/grand-total/forestry)](https://cranlogs.r-pkg.org/badges/grand-total/forestry)
 
 # forestry <img src="forestry_hex2.png"  width="180px" align="right"/>
 
