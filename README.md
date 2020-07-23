@@ -4,6 +4,15 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/forestry)](https://cran.r-project.org/package=forestry)
 [![Rdoc](http://www.rdocumentation.org/badges/version/forestry)](http://www.rdocumentation.org/packages/forestry) 
 [![Download](https://cranlogs.r-pkg.org/badges/grand-total/forestry)](https://cranlogs.r-pkg.org/badges/grand-total/forestry)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![R build
+status](https://github.com/jienagu/forestry/workflows/R-CMD-check/badge.svg)](https://github.com/jienagu/forestry/actions)
+[![Travis build
+status](https://travis-ci.com/jienagu/forestry.svg?branch=master)](https://travis-ci.com/jienagu/forestry)
+[![Codecov test
+coverage](https://codecov.io/gh/jienagu/forestry/branch/master/graph/badge.svg)](https://codecov.io/gh/jienagu/forestry?branch=master)
+<!-- badges: end -->
 
 # forestry <img src="forestry_hex2.png"  width="180px" align="right"/>
 
